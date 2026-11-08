@@ -96,6 +96,21 @@
   .kikkuh-bak.zeer{display:block;}
   .kikkuh-bak strong{color:var(--groen-donker);}
   .kikker{font-size:1.4rem;}
+  .plantabel{
+    width:100%; border-collapse:collapse; background:var(--kaart);
+    border-radius:10px; overflow:hidden; font-size:.9rem;
+  }
+  .plantabel th{
+    background:var(--groen); color:var(--creme); text-align:left;
+    padding:.5rem .6rem; font-size:.85rem;
+  }
+  .plantabel td{border-bottom:1px solid #e8dfc9; padding:.35rem .6rem;}
+  .plantabel td.stap{font-weight:600; color:var(--groen-donker);}
+  .plantabel input{
+    width:100%; border:1px solid #d8cfae; border-radius:6px;
+    padding:.3rem .4rem; font-family:inherit; font-size:.9rem; background:#fffef9;
+  }
+  @media print{ .plantabel input{border:none;} }
   footer{
     text-align:center; padding:2rem 1rem 3rem; color:var(--groen-donker);
     font-size:.9rem; border-top:4px solid var(--amber);
@@ -198,7 +213,27 @@ const STATIONS = [
       "Hoe testen we ons concept bij echte gasten?",
       "Wanneer presenteren we aan Invitez?",
     ]
+  },
+  {
+    id:"planning", nr:7, titel:"Planning — de route naar de pitch",
+    hint:"Vul samen de reis in: wat doen we per stap, wanneer en wie is verantwoordelijk? De datums mogen veranderen — de route niet. Print of exporteer hem voor in de groepsmap.",
+    prompts:[
+      "Welke datum staat bij welke stap?",
+      "Wie is verantwoordelijk voor welke stap?",
+    ]
   }
+];
+
+const PLANNING_STAPPEN = [
+  "Kick-off: ieder vult thuis station 1 t/m 4 in",
+  "Groepsbijeenkomst 1: clustering en ⭐-keuzes",
+  "Excursie: inspiratieplek bezoeken (station 2)",
+  "Groepsbijeenkomst 2: concept uitwerken (station 5)",
+  "Test: mini-versie aan echte gasten laten zien",
+  "Presentatie / pitch aan Invitez",
+  "Reflectie: wat leerde ik (voor cv & motivatiebrief)",
+  "",
+  "",
 ];
 
 const SLEUTEL = "thee-reis-v1";
@@ -233,7 +268,47 @@ STATIONS.forEach(st => {
     <div class="bord" data-bord="${st.id}"></div>
   `;
   main.appendChild(sec);
+
+  if(st.id === "planning"){
+    const t = document.createElement("div");
+    t.className = "plantabel-bak";
+    sec.appendChild(t);
+  }
 });
+
+const PLAN_SLEUTEL = "thee-planning-v1";
+function plan(){
+  try{ return JSON.parse(localStorage.getItem(PLAN_SLEUTEL)) || []; }catch{ return []; }
+}
+function tekenPlan(){
+  const bak = document.querySelector(".plantabel-bak");
+  if(!bak) return;
+  const p = plan();
+  let rows = "";
+  PLANNING_STAPPEN.forEach((stap, i) => {
+    rows += `<tr>
+      <td class="stap">${stap || "&nbsp;"}</td>
+      <td><input data-plan="${i}-0" value="${(p[i]&&p[i][0])||""}" placeholder="datum"></td>
+      <td><input data-plan="${i}-1" value="${(p[i]&&p[i][1])||""}" placeholder="wie doet wat?"></td>
+      <td><input data-plan="${i}-2" value="${(p[i]&&p[i][2])||""}" placeholder="af?"></td>
+    </tr>`;
+  });
+  bak.innerHTML = `<table class="plantabel">
+    <thead><tr><th>Stap</th><th>Wanneer?</th><th>Wie doet wat?</th><th>Klaar?</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+  bak.querySelectorAll("[data-plan]").forEach(inp => {
+    inp.addEventListener("input", () => {
+      const [ri, ci] = inp.dataset.plan.split("-").map(Number);
+      const p2 = plan();
+      while(p2.length <= ri) p2.push(["", "", ""]);
+      p2[ri] = p2[ri] || ["", "", ""];
+      p2[ri][ci] = inp.value;
+      localStorage.setItem(PLAN_SLEUTEL, JSON.stringify(p2));
+    });
+  });
+}
+tekenPlan();
 
 function briefjes(st){ return data[st] || (data[st] = []); }
 
@@ -317,6 +392,14 @@ function exporteer(){
     });
     txt += "\n";
   });
+  const p = plan();
+  if(p.some(r => r && r.some(c => c && c.trim()))){
+    txt += "— PLANNING —\n";
+    PLANNING_STAPPEN.forEach((stap, i) => {
+      const r = p[i] || [];
+      if(stap || r.some(c => c)) txt += "• " + (stap||"?") + " | wanneer: " + (r[0]||"-") + " | " + (r[1]||"-") + " | af: " + (r[2]||"-") + "\n";
+    });
+  }
   const blob = new Blob([txt], {type:"text/plain"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);

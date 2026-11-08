@@ -1,0 +1,49 @@
+INSTALLATIE — Reis door het Land van Thee (centrale versie)
+============================================================
+
+Wat zit er in deze map?
+----------------------
+  index.php   -> de studenten-app (gedeelde, live borden)
+  api.php     -> de centrale opslag (schrijft naar data/)
+  beheer.php  -> de beheerpagina voor de practor
+  data/       -> hier worden de ideeën opgeslagen (map mee uploaden!)
+
+Installatie in 5 stappen
+------------------------
+1. Verander het beheer-wachtwoord in api.php:
+   Zoek de regel met $ADMIN_WACHTWOORD = 'thee-practor';
+   en vervang thee-practor door jouw eigen geheime wachtwoord.
+   (Doe dit in een teksteditor vóór het uploaden.)
+
+2. Upload de volledige inhoud van deze map naar een map op je hosting,
+   bijvoorbeeld:  public_html/thee/
+   Via FTP (bijv. FileZilla) of het uploadpaneel van je hostingpakket.
+
+3. Zorg dat de map data/ schrijfbaar is:
+   In FileZilla: rechtermuisknop op de map -> Bestandsrechten ->
+   zet op 755 (of 775 als 755 niet werkt).
+
+4. Klaar! De links zijn dan:
+   Studenten:  https://excellentestudenten.nl/thee/
+   Practor:    https://excellentestudenten.nl/thee/beheer.php
+
+5. Log in op de beheerpagina met je wachtwoord.
+
+Hoe werkt het?
+--------------
+- Studenten openen de gewone link en plakken ideeën op het bord.
+  Iedereen ziet elkaars ideeën LIVE (verversing elke 5 seconden).
+- De practor opent beheer.php en ziet alle zeven borden live,
+  kan per idee een reactie plaatsen (🐸 die de studenten zien),
+  ideeën verwijderen en de planning invullen/aanpassen.
+- "Wis alles" op de beheerpagina start schoon met een nieuwe groep.
+
+Veiligheid
+----------
+- Het bestand data/thee-reis.json is via de browser niet direct
+  te lezen (beschermd door data/.htaccess). Werkt dit op jouw
+  hosting niet, hernoem data/ dan niet en neem contact op.
+- Ideaal blijft: zet HTTPS aan bij je hosting (meestal gratis
+  via een Let's Encrypt-knopje in het hostingpaneel).
+
+Veel plezier met de reis! 🍵🐸
