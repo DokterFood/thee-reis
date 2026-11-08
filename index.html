@@ -112,9 +112,9 @@
 
 <header>
   <h1>🍵 Reis door het Land van Thee</h1>
-  <p class="sub">Practoraat Foodinnovation &amp; Concepts — brainstormreis voor het theekoncept van Invitez</p>
+  <p class="sub">Practoraat Foodinnovation &amp; Concepts — brainstormreis voor het theeconcept van Invitez</p>
   <div class="vraag">
-    “Hoe ontwikkelen wij als groep een verrassend theekoncept voor Invitez —
+    “Hoe ontwikkelen wij als groep een verrassend theeconcept voor Invitez —
     als beleving, met kennisoverdracht, of iets dat nog niemand bedacht heeft?
     Alles kan. De groep beslist wat, wie, waar en hoe.”
   </div>
@@ -158,7 +158,7 @@ const STATIONS = [
     id:"doelgroep", nr:3, titel:"Doelgroep — voor wie doen we het?",
     hint:"Wie is de theeklant van Invitez? Jong, oud, student, zakenman? Bedenk meerdere doelgroepen en schrijf op wat die groep zou willen beleven.",
     prompts:[
-      "Voor wie is dit koncept bedoeld?",
+      "Voor wie is dit concept bedoeld?",
       "Wat wil die doelgroep echt ervaren?",
       "Wanneer zou die persoon thee drinken?",
       "Wat vindt die doelgroep saai aan thee?",
@@ -178,11 +178,11 @@ const STATIONS = [
     ]
   },
   {
-    id:"koncept", nr:5, titel:"Het koncept — wat gaan we maken?",
-    hint:"Kies uit alle losse ideeën één richting. Geef het koncept een naam, een vorm en een plek. Durf te kiezen — jullie beslissen samen.",
+    id:"concept", nr:5, titel:"Het concept — wat gaan we maken?",
+    hint:"Kies uit alle losse ideeën één richting. Geef het concept een naam, een vorm en een plek. Durf te kiezen — jullie beslissen samen.",
     prompts:[
       "Welk idee verdient het om uitgewerkt te worden?",
-      "Wat is de naam van jullie koncept?",
+      "Wat is de naam van jullie concept?",
       "Waar vindt het plaats?",
       "Wat maakt het anders dan alles wat er al is?",
       "Welk liedje of motto hoort erbij?",
@@ -195,7 +195,7 @@ const STATIONS = [
       "Wie neemt welke rol in de groep?",
       "Wat moeten we regelen of kopen?",
       "Wat is de eerste stap volgende week?",
-      "Hoe testen we ons koncept bij echte gasten?",
+      "Hoe testen we ons concept bij echte gasten?",
       "Wanneer presenteren we aan Invitez?",
     ]
   }
@@ -306,7 +306,7 @@ function naamVeld(){
 
 function exporteer(){
   let txt = "REIS DOOR HET LAND VAN THEE — Foodinnovation & Concepts\n"
-          + "Onderzoeksvraag: ontwikkelen van een theekoncept voor Invitez\n"
+          + "Onderzoeksvraag: ontwikkelen van een theeconcept voor Invitez\n"
           + "Export: " + new Date().toLocaleString("nl-NL") + "\n\n";
   STATIONS.forEach(st => {
     txt += "— " + st.nr + ". " + st.titel + " —\n";
