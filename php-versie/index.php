@@ -79,6 +79,24 @@
   .knoppenrij{display:flex; flex-direction:column; gap:.4rem;}
   .knop.foto{background:#5a7d9a;}
   .tip{font-size:.8rem; opacity:.7; margin:0 0 1rem;}
+  .uitleg-achter{
+    position:fixed; inset:0; background:rgba(20,30,20,.6); z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:1rem;
+  }
+  .uitleg{
+    background:var(--kaart); border-radius:16px; max-width:520px; width:100%;
+    padding:1.5rem 1.6rem; max-height:85vh; overflow-y:auto;
+    box-shadow:0 10px 40px rgba(0,0,0,.35); border-top:6px solid var(--amber);
+  }
+  .uitleg h3{color:var(--groen-donker); margin-bottom:.6rem; font-size:1.25rem;}
+  .uitleg ul{list-style:none; margin:0 0 1rem;}
+  .uitleg li{padding:.3rem 0; font-size:.92rem; border-bottom:1px dashed #e5dcc4;}
+  .uitleg li:last-child{border-bottom:none;}
+  .uitleg .knop{width:100%; margin-top:.3rem;}
+  .uitleg-knop{
+    background:var(--kaart); color:var(--groen-donker); border:1.5px solid var(--groen);
+    border-radius:10px; padding:.5rem .9rem; font-size:.9rem; font-weight:700; cursor:pointer; font-family:inherit;
+  }
   .knop{
     background:var(--groen); color:var(--creme); border:none; border-radius:10px;
     padding:.6rem 1.1rem; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit;
@@ -118,9 +136,9 @@
 
 <header>
   <h1>🍵 Reis door het Land van Thee</h1>
-  <p class="sub">Practoraat Foodinnovation &amp; Concepts — brainstormreis voor het theekoncept van Invitez</p>
+  <p class="sub">Practoraat Foodinnovation &amp; Concepts — brainstormreis voor het theeconcept van Invitez</p>
   <div class="vraag">
-    “Hoe ontwikkelen wij als groep een verrassend theekoncept voor Invitez —
+    “Hoe ontwikkelen wij als groep een verrassend theeconcept voor Invitez —
     als beleving, met kennisoverdracht, of iets dat nog niemand bedacht heeft?
     Alles kan. De groep beslist wat, wie, waar en hoe.”
   </div>
@@ -129,6 +147,23 @@
 <nav id="nav"></nav>
 
 <main id="main"></main>
+
+<div class="uitleg-achter" id="uitlegAchter" hidden>
+  <div class="uitleg">
+    <h3>🍵 Zo werkt de Reis door het Land van Thee</h3>
+    <ul>
+      <li>📱 <strong>Open de link</strong> op telefoon of laptop — bookmarken maar</li>
+      <li>✍️ <strong>Typ je naam</strong> bovenaan (optioneel), dan staat bij elk idee wie het schreef</li>
+      <li>📋 <strong>Plak ideeën op het bord</strong> — Enter = plakken, Shift+Enter = nieuwe regel. Na het plakken kun je <strong>meteen het volgende idee</strong> in hetzelfde vak typen</li>
+      <li>📷 <strong>Foto-knop</strong> — zet een foto op het bord (max. 2 MB, wordt automatisch verkleind)</li>
+      <li>🐸 <strong>Kikkûh!-knop</strong> — geeft per station een verrassende brainstormvraag als de ideeën opdrogen</li>
+      <li>⭐ <strong>Sterretje</strong> — markeer de ideeën die de groep kiest (de groep beslist!)</li>
+      <li>⬇️ <strong>Exporteer de reis</strong> — downloadt alles als tekstbestand om te delen of in te leveren</li>
+      <li>🔴 <strong>Live:</strong> iedereen die de pagina open heeft, ziet elkaars ideeën binnen enkele seconden verschijnen</li>
+    </ul>
+    <button class="knop" onclick="sluitUitleg()">Aan de slag! 🍵</button>
+  </div>
+</div>
 
 <footer>
   <div class="kikker">🐸</div>
@@ -285,6 +320,7 @@ naamBak.innerHTML = `
   <input id="naam" type="text" placeholder="Jouw naam (optioneel)" value="${naam}"
     style="padding:.55rem .8rem; border:1.5px solid var(--groen); border-radius:10px; margin-right:.5rem; font-family:inherit;">
   <button class="knop" id="exportknop">⬇️ Exporteer de reis</button>
+  <button class="uitleg-knop" onclick="toonUitleg()">❓ Zo werkt het</button>
 `;
 main.prepend(naamBak);
 
@@ -449,7 +485,7 @@ document.addEventListener("change", e => {
 
 function exporteer(){
   let txt = "REIS DOOR HET LAND VAN THEE — Foodinnovation & Concepts\n"
-          + "Onderzoeksvraag: ontwikkelen van een theekoncept voor Invitez\n"
+          + "Onderzoeksvraag: ontwikkelen van een theeconcept voor Invitez\n"
           + "Export: " + new Date().toLocaleString("nl-NL") + "\n\n";
   STATIONS.forEach(st => {
     txt += "— " + st.nr + ". " + st.titel + " —\n";
@@ -482,6 +518,13 @@ function exporteer(){
 }
 
 function esc(s){ return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function toonUitleg(){ document.getElementById("uitlegAchter").hidden = false; }
+function sluitUitleg(){
+  document.getElementById("uitlegAchter").hidden = true;
+  localStorage.setItem("thee-uitleg-gezien", "1");
+}
+if(!localStorage.getItem("thee-uitleg-gezien")) toonUitleg();
 
 api("load").then(ververs);
 setInterval(() => api("load").then(ververs), 5000);
