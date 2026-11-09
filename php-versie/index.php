@@ -61,6 +61,9 @@
   .briefje:nth-child(3n){background:#e7f4e0;}
   .briefje:nth-child(3n+1){background:#ffe9dd;}
   .briefje p{font-size:.95rem; white-space:pre-wrap;}
+  .briefje img{max-width:100%; border-radius:8px; margin-top:.4rem; display:block;}
+  .uploaden{font-size:.85rem; opacity:.7; margin:.2rem 0 .8rem; display:none;}
+  .uploaden.zeer{display:block;}
   .briefje .meta{margin-top:.5rem; font-size:.75rem; opacity:.65; display:flex; justify-content:space-between; gap:.5rem;}
   .briefje .del{background:none; border:none; cursor:pointer; font-size:1rem; opacity:.5;}
   .briefje .del:hover{opacity:1; color:var(--rood);}
@@ -68,11 +71,14 @@
   .briefje.gekozen{outline:3px solid var(--amber);}
   .briefje .kiestilm.gekozen{opacity:1; font-weight:800;}
   .briefje .reactie{background:#fff; border-left:4px solid var(--groen); padding:.4rem .6rem; margin-top:.5rem; font-size:.85rem; border-radius:0 8px 8px 0; opacity:.9;}
-  .nieuw{display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;}
-  .nieuw input{
-    flex:1; min-width:180px; padding:.6rem .8rem; border:1.5px solid var(--groen);
-    border-radius:10px; font-size:1rem; background:var(--kaart); font-family:inherit;
+  .nieuw{display:flex; gap:.6rem; margin-bottom:.4rem; flex-wrap:wrap; align-items:flex-start;}
+  .nieuw textarea{
+    flex:1; min-width:240px; padding:.6rem .8rem; border:1.5px solid var(--groen);
+    border-radius:10px; font-size:1rem; background:var(--kaart); font-family:inherit; resize:vertical;
   }
+  .knoppenrij{display:flex; flex-direction:column; gap:.4rem;}
+  .knop.foto{background:#5a7d9a;}
+  .tip{font-size:.8rem; opacity:.7; margin:0 0 1rem;}
   .knop{
     background:var(--groen); color:var(--creme); border:none; border-radius:10px;
     padding:.6rem 1.1rem; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit;
@@ -247,10 +253,15 @@ STATIONS.forEach(st => {
     <span class="station-nummer">${st.nr}</span><h2>${st.titel}</h2>
     <p class="hint">${st.hint}</p>
     <div class="nieuw">
-      <input type="text" placeholder="Schrijf je idee op…" data-invoer="${st.id}">
-      <button class="knop" data-toevoegen="${st.id}">Plak op het bord</button>
-      <button class="knop kikkuh" data-kikkuh="${st.id}">🐸 Kikkûh!</button>
+      <textarea rows="3" maxlength="4000" placeholder="Schrijf je idee… (Enter = plakken, Shift+Enter = nieuwe regel)" data-invoer="${st.id}"></textarea>
+      <div class="knoppenrij">
+        <button class="knop" data-toevoegen="${st.id}">Plak op het bord</button>
+        <button class="knop kikkuh" data-kikkuh="${st.id}">🐸 Kikkûh!</button>
+        <button class="knop foto" data-foto="${st.id}">📷 Foto</button>
+        <input type="file" accept="image/*" hidden data-fotobestand="${st.id}">
+      </div>
     </div>
+    <p class="tip">💡 Na het plakken kun je <strong>meteen weer een nieuw idee</strong> in hetzelfde vak typen. Lange teksten mogen ook — en met 📷 zet je een foto op het bord (max. 2 MB, wordt automatisch verkleind).</p>
     <div class="kikkuh-bak" data-bak="${st.id}"></div>
     <div class="bord" data-bord="${st.id}"></div>
   `;
@@ -301,6 +312,11 @@ function toon(){
             <button class="del" title="Weg ermee">🗑️</button>
           </span>
         </div>`;
+      if(b.type === "foto"){
+        const img = document.createElement("img");
+        img.src = b.url; img.alt = "foto op het bord"; img.loading = "lazy";
+        d.querySelector("p").after(img);
+      }
       if(b.commentaar){
         const r = document.createElement("div");
         r.className = "reactie";
@@ -372,6 +388,10 @@ document.addEventListener("click", e => {
     api("add", {station:stId, tekst:t}).then(ververs);
     invoer.value = ""; invoer.focus();
   }
+  const fk = e.target.closest("[data-foto]");
+  if(fk){
+    document.querySelector(`[data-fotobestand="${fk.dataset.foto}"]`).click();
+  }
   const kik = e.target.closest("[data-kikkuh]");
   if(kik){
     const stId = kik.dataset.kikkuh;
@@ -387,13 +407,44 @@ document.addEventListener("click", e => {
 });
 
 document.addEventListener("keydown", e => {
-  if(e.key === "Enter" && e.target.dataset && e.target.dataset.invoer){
+  if(e.key === "Enter" && e.target.dataset && e.target.dataset.invoer && !e.shiftKey){
+    e.preventDefault();
     const stId = e.target.dataset.invoer;
     const t = e.target.value.trim();
     if(!t) return;
     api("add", {station:stId, tekst:t}).then(ververs);
     e.target.value = "";
   }
+});
+
+document.addEventListener("change", e => {
+  if(!e.target.dataset || !e.target.dataset.fotobestand) return;
+  const bestand = e.target.files[0];
+  e.target.value = "";
+  if(!bestand) return;
+  const stId = e.target.dataset.fotobestand;
+  const meld = document.querySelector(`[data-bak="${stId}"]`);
+  const oudeTekst = meld.innerHTML;
+  meld.innerHTML = "📷 Foto laden en verkleinen…";
+  meld.classList.add("zeer");
+  const img = new Image();
+  const fr = new FileReader();
+  fr.onload = () => {
+    img.onload = () => {
+      const schaal = Math.min(1, 1200 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * schaal);
+      c.height = Math.round(img.height * schaal);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      const data = c.toDataURL("image/jpeg", 0.8);
+      api("foto", {station:stId, data, tekst:""}).then(d => {
+        if(d.ok){ ververs(d); meld.innerHTML = oudeTekst; }
+        else { meld.innerHTML = "⚠️ Foto te groot of niet geldig (max. 2 MB)."; }
+      });
+    };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(bestand);
 });
 
 function exporteer(){
@@ -405,6 +456,10 @@ function exporteer(){
     const lijst = data.ideeen.filter(b => b.station === st.id);
     if(!lijst.length){ txt += "(nog niets)\n\n"; return; }
     lijst.forEach(b => {
+      if(b.type === "foto"){
+        txt += (b.gekozen ? "⭐ " : "• ") + "[foto: " + b.url + "]" + (b.naam ? "  ["+b.naam+"]" : "") + "\n";
+        return;
+      }
       txt += (b.gekozen ? "⭐ " : "• ") + b.tekst + (b.naam ? "  ["+b.naam+"]" : "") + "\n";
       if(b.commentaar) txt += "   🐸 reactie practor: " + b.commentaar + "\n";
     });

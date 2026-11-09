@@ -7,6 +7,7 @@ Wat zit er in deze map?
   api.php     -> de centrale opslag (schrijft naar data/)
   beheer.php  -> de beheerpagina voor de practor
   data/       -> hier worden de ideeën opgeslagen (map mee uploaden!)
+  uploads/    -> hier komen de foto's van het plakbord (map mee uploaden!)
 
 Installatie in 5 stappen
 ------------------------
@@ -19,7 +20,7 @@ Installatie in 5 stappen
    bijvoorbeeld:  public_html/thee/
    Via FTP (bijv. FileZilla) of het uploadpaneel van je hostingpakket.
 
-3. Zorg dat de map data/ schrijfbaar is:
+3. Zorg dat de mappen data/ en uploads/ schrijfbaar zijn:
    In FileZilla: rechtermuisknop op de map -> Bestandsrechten ->
    zet op 755 (of 775 als 755 niet werkt).
 

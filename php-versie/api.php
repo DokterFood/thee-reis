@@ -5,6 +5,7 @@ $ADMIN_WACHTWOORD = 'thee-practor';
 
 define('DATA_DIR', __DIR__ . '/data');
 define('DATA_FILE', DATA_DIR . '/thee-reis.json');
+define('UPLOAD_DIR', __DIR__ . '/uploads');
 
 if (!function_exists('mb_substr')) { function mb_substr($s, $a, $b = null) { return $b === null ? substr($s, $a) : substr($s, $a, $b); } }
 if (!function_exists('mb_strlen')) { function mb_strlen($s) { return strlen($s); } }
@@ -36,12 +37,40 @@ switch ($action) {
 
     case 'add':
         $tekst = trim(isset($in['tekst']) ? $in['tekst'] : '');
-        if ($tekst === '' || mb_strlen($tekst) > 2000) antwoord(false);
+        if ($tekst === '' || mb_strlen($tekst) > 4000) antwoord(false);
         $d = laad_data();
         $d['ideeen'][] = [
             'id' => time() . '-' . substr(bin2hex(random_bytes(3)), 0, 6),
             'station' => (string)(isset($in['station']) ? $in['station'] : ''),
+            'type' => 'tekst',
             'tekst' => $tekst,
+            'naam' => mb_substr(trim(isset($in['naam']) ? $in['naam'] : ''), 0, 40),
+            'tijd' => date('d M'),
+            'gekozen' => false,
+            'commentaar' => '',
+        ];
+        bewaar_data($d);
+        antwoord(true, laad_data());
+
+    case 'foto':
+        $b64 = isset($in['data']) ? $in['data'] : '';
+        $b64 = preg_replace('/^data:image\/[a-z+]+;base64,/', '', $b64);
+        $bin = base64_decode($b64, true);
+        if ($bin === false || strlen($bin) > 2 * 1024 * 1024) antwoord(false);
+        $info = getimagesizefromstring($bin);
+        if (!$info) antwoord(false);
+        $ext = image_type_to_extension($info[2], false);
+        if (!in_array($ext, ['jpeg', 'png', 'gif', 'webp'], true)) antwoord(false);
+        if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0775, true);
+        $naam = date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+        file_put_contents(UPLOAD_DIR . '/' . $naam, $bin, LOCK_EX);
+        $d = laad_data();
+        $d['ideeen'][] = [
+            'id' => time() . '-' . substr(bin2hex(random_bytes(3)), 0, 6),
+            'station' => (string)(isset($in['station']) ? $in['station'] : ''),
+            'type' => 'foto',
+            'url' => 'uploads/' . $naam,
+            'tekst' => mb_substr(trim(isset($in['tekst']) ? $in['tekst'] : ''), 0, 300),
             'naam' => mb_substr(trim(isset($in['naam']) ? $in['naam'] : ''), 0, 40),
             'tijd' => date('d M'),
             'gekozen' => false,
@@ -61,6 +90,13 @@ switch ($action) {
 
     case 'del':
         $d = laad_data();
+        $verwijderd = array_values(array_filter($d['ideeen'], function($i) use ($in) { return $i['id'] === $in['id']; }));
+        foreach ($verwijderd as $v) {
+            if (isset($v['url']) && strpos($v['url'], 'uploads/') === 0) {
+                $f = __DIR__ . '/' . $v['url'];
+            if (is_file($f)) @unlink($f);
+            }
+        }
         $d['ideeen'] = array_values(array_filter($d['ideeen'], function($i) use ($in) { return $i['id'] !== $in['id']; }));
         bewaar_data($d);
         antwoord(true, laad_data());

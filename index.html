@@ -76,12 +76,14 @@
   .briefje.gekozen{outline:3px solid var(--amber); opacity:.6;}
   .briefje .kiestilm.gekozen{opacity:1; font-weight:800;}
   .nieuw{
-    display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;
+    display:flex; gap:.6rem; margin-bottom:.4rem; flex-wrap:wrap; align-items:flex-start;
   }
-  .nieuw input, .nieuw select{
-    flex:1; min-width:180px; padding:.6rem .8rem; border:1.5px solid var(--groen);
-    border-radius:10px; font-size:1rem; background:var(--kaart); font-family:inherit;
+  .nieuw textarea{
+    flex:1; min-width:240px; padding:.6rem .8rem; border:1.5px solid var(--groen);
+    border-radius:10px; font-size:1rem; background:var(--kaart); font-family:inherit; resize:vertical;
   }
+  .knoppenrij{display:flex; flex-direction:column; gap:.4rem;}
+  .tip{font-size:.8rem; opacity:.7; margin:0 0 1rem;}
   .knop{
     background:var(--groen); color:var(--creme); border:none; border-radius:10px;
     padding:.6rem 1.1rem; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit;
@@ -260,10 +262,13 @@ STATIONS.forEach(st => {
     <span class="station-nummer">${st.nr}</span><h2>${st.titel}</h2>
     <p class="hint">${st.hint}</p>
     <div class="nieuw">
-      <input type="text" placeholder="Schrijf je idee op…" data-invoer="${st.id}">
-      <button class="knop" data-toevoegen="${st.id}">Plak op het bord</button>
-      <button class="knop kikkuh" data-kikkuh="${st.id}">🐸 Kikkûh!</button>
+      <textarea rows="3" maxlength="4000" placeholder="Schrijf je idee… (Enter = plakken, Shift+Enter = nieuwe regel)" data-invoer="${st.id}"></textarea>
+      <div class="knoppenrij">
+        <button class="knop" data-toevoegen="${st.id}">Plak op het bord</button>
+        <button class="knop kikkuh" data-kikkuh="${st.id}">🐸 Kikkûh!</button>
+      </div>
     </div>
+    <p class="tip">💡 Na het plakken kun je <strong>meteen weer een nieuw idee</strong> in hetzelfde vak typen. Lange teksten mogen ook.</p>
     <div class="kikkuh-bak" data-bak="${st.id}"></div>
     <div class="bord" data-bord="${st.id}"></div>
   `;
@@ -367,7 +372,8 @@ document.addEventListener("click", e => {
 });
 
 document.addEventListener("keydown", e => {
-  if(e.key === "Enter" && e.target.dataset && e.target.dataset.invoer){
+  if(e.key === "Enter" && e.target.dataset && e.target.dataset.invoer && !e.shiftKey){
+    e.preventDefault();
     const stId = e.target.dataset.invoer;
     voegToe(stId, e.target.value, naamVeld());
     e.target.value = "";

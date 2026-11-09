@@ -33,6 +33,7 @@
   th{background:#2d5a3d;color:#faf4e8;text-align:left;padding:.4rem .5rem;}
   td{border-bottom:1px solid #e8dfc9;padding:.3rem .5rem;}
   td input{width:100%;border:1px solid #d8cfae;border-radius:5px;padding:.25rem .4rem;font-family:inherit;font-size:.85rem;}
+  .briefje img{max-width:100%;}
 </style>
 </head>
 <body>
@@ -50,7 +51,7 @@
   <div class="balk">
     <span class="info" id="status">Laden…</span>
     <button onclick="wisAlles()">🗑 Wis alles (nieuwe groep)</button>
-    <a href="../index.php" style="font-size:.85rem;color:#1e3d29;">← naar de studenten-app</a>
+    <a href="index.php" style="font-size:.85rem;color:#1e3d29;">← naar de studenten-app</a>
   </div>
   <div id="inhoud"></div>
 </div>
@@ -114,7 +115,7 @@ function ververs(d){
     if(id === "planning") html += planTabel();
     lijst.forEach(i => {
       html += "<div class='briefje"+(i.gekozen?" gekozen":"")+"' data-id='"+i.id+"'>"
-        + "<p>"+esc(i.tekst)+"</p>"
+        + (i.type === "foto" ? "<p>[📷 foto] <a href='"+esc(i.url)+"' target='_blank'>bekijk</a></p><img src='"+esc(i.url)+"' style='max-width:180px;border-radius:6px;display:block;margin-top:.3rem;'>" : "<p>"+esc(i.tekst)+"</p>")
         + "<div class='meta'>"+esc(i.naam||"anoniem")+" · "+esc(i.tijd||"")+(i.gekozen?" · ⭐ groepskeuze":"")+"</div>"
         + (i.commentaar ? "<div class='reactie'>🐸 "+esc(i.commentaar)+"</div>" : "")
         + "<input class='invoer' placeholder='Commentaar voor de groep…' data-cmnt='"+i.id+"'>"
