@@ -81,8 +81,9 @@
   .tip{font-size:.8rem; opacity:.7; margin:0 0 1rem;}
   .uitleg-achter{
     position:fixed; inset:0; background:rgba(20,30,20,.6); z-index:50;
-    display:flex; align-items:center; justify-content:center; padding:1rem;
+    display:none; align-items:center; justify-content:center; padding:1rem;
   }
+  .uitleg-achter.zeer{display:flex;}
   .uitleg{
     background:var(--kaart); border-radius:16px; max-width:520px; width:100%;
     padding:1.5rem 1.6rem; max-height:85vh; overflow-y:auto;
@@ -148,7 +149,7 @@
 
 <main id="main"></main>
 
-<div class="uitleg-achter" id="uitlegAchter" hidden>
+<div class="uitleg-achter" id="uitlegAchter">
   <div class="uitleg">
     <h3>🍵 Zo werkt de Reis door het Land van Thee</h3>
     <ul>
@@ -519,9 +520,9 @@ function exporteer(){
 
 function esc(s){ return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
-function toonUitleg(){ document.getElementById("uitlegAchter").hidden = false; }
+function toonUitleg(){ document.getElementById("uitlegAchter").classList.add("zeer"); }
 function sluitUitleg(){
-  document.getElementById("uitlegAchter").hidden = true;
+  document.getElementById("uitlegAchter").classList.remove("zeer");
   localStorage.setItem("thee-uitleg-gezien", "1");
 }
 if(!localStorage.getItem("thee-uitleg-gezien")) toonUitleg();
